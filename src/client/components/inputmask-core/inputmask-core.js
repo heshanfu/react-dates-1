@@ -1,42 +1,5 @@
 'use strict';
 
-function extend(dest, src) {
-  if (src) {
-    let props = Object.keys(src);
-    for (let i = 0, l = props.length; i < l; i++) {
-      dest[props[i]] = src[props[i]]
-    }
-  }
-  return dest
-}
-
-function copy(obj) {
-  return extend({}, obj)
-}
-
-/**
- * Merge an object defining format characters into the defaults.
- * Passing null/undefined for en existing format character removes it.
- * Passing a definition for an existing format character overrides it.
- * @param {?Object} formatCharacters.
- */
-function mergeFormatCharacters(formatCharacters) {
-  let merged = copy(DEFAULT_FORMAT_CHARACTERS);
-  if (formatCharacters) {
-    let chars = Object.keys(formatCharacters);
-    for (let i = 0, l = chars.length; i < l; i++) {
-      let char = chars[i];
-      if (formatCharacters[char] === null) {
-        delete merged[char]
-      }
-      else {
-        merged[char] = formatCharacters[char]
-      }
-    }
-  }
-  return merged
-}
-
 let ESCAPE_CHAR = '\\';
 
 let DIGIT_RE = /^\d$/;
@@ -67,6 +30,42 @@ let DEFAULT_FORMAT_CHARACTERS = {
     transform: function(char) { return char.toUpperCase() }
   }
 };
+
+function extend(dest, src) {
+  if (src) {
+    let props = Object.keys(src);
+    for (let i = 0, l = props.length; i < l; i++) {
+      dest[props[i]] = src[props[i]]; // eslint-disable-line
+    }
+  }
+  return dest
+}
+
+function copy(obj) {
+  return extend({}, obj)
+}
+
+/**
+ * Merge an object defining format characters into the defaults.
+ * Passing null/undefined for en existing format character removes it.
+ * Passing a definition for an existing format character overrides it.
+ * @param {?Object} formatCharacters.
+ */
+function mergeFormatCharacters(formatCharacters) {
+  let merged = copy(DEFAULT_FORMAT_CHARACTERS);
+  if (formatCharacters) {
+    let chars = Object.keys(formatCharacters);
+    for (let i = 0, l = chars.length; i < l; i++) {
+      let char = chars[i];
+      if (formatCharacters[char] === null) {
+        delete merged[char]
+      } else {
+        merged[char] = formatCharacters[char]
+      }
+    }
+  }
+  return merged
+}
 
 /**
  * @param {string} source
@@ -111,8 +110,7 @@ Pattern.prototype._parse = function parse() {
         throw new Error('InputMask: pattern ends with a raw ' + ESCAPE_CHAR)
       }
       char = sourceChars[++i]
-    }
-    else if (char in this.formatCharacters) {
+    } else if (char in this.formatCharacters) {
       if (this.firstEditableIndex === null) {
         this.firstEditableIndex = patternIndex
       }
@@ -149,12 +147,11 @@ Pattern.prototype.formatValue = function format(value) {
         !this.isValidAtIndex(value[valueIndex], i)) {
         break
       }
-      valueBuffer[i] = (value.length > valueIndex && this.isValidAtIndex(value[valueIndex], i)
-        ? this.transform(value[valueIndex], i)
-        : this.placeholderChar);
+      valueBuffer[i] = (value.length > valueIndex && this.isValidAtIndex(value[valueIndex], i) ?
+        this.transform(value[valueIndex], i) :
+        this.placeholderChar);
       valueIndex++
-    }
-    else {
+    } else {
       valueBuffer[i] = this.pattern[i];
       // Also allow the value to contain static values from the pattern by
       // advancing its index.
@@ -191,12 +188,12 @@ Pattern.prototype.transform = function transform(char, index) {
 
 function InputMask(options) {
   if (!(this instanceof InputMask)) { return new InputMask(options) }
-  options = extend({
+  options = extend({ // eslint-disable-line
     formatCharacters: null,
     pattern: null,
     isRevealingMask: false,
     placeholderChar: DEFAULT_PLACEHOLDER_CHAR,
-    selection: {start: 0, end: 0},
+    selection: { start: 0, end: 0 },
     value: ''
   }, options);
 
@@ -280,7 +277,7 @@ InputMask.prototype.input = function input(char) {
   if (this._lastOp !== 'input' ||
     selectionBefore.start !== selectionBefore.end ||
     this._lastSelection !== null && selectionBefore.start !== this._lastSelection.start) {
-    this._history.push({value: valueBefore, selection: selectionBefore, lastOp: this._lastOp})
+    this._history.push({ value: valueBefore, selection: selectionBefore, lastOp: this._lastOp })
   }
   this._lastOp = 'input';
   this._lastSelection = copy(this.selection);
@@ -310,9 +307,9 @@ InputMask.prototype.backspace = function backspace() {
     }
     this.selection.start--;
     this.selection.end--;
-  }
+
   // Range selected - delete characters and leave the cursor at the start of the selection
-  else {
+  } else {
     let end = this.selection.end - 1;
     while (end >= this.selection.start) {
       if (this.pattern.isEditableIndex(end)) {
@@ -331,7 +328,7 @@ InputMask.prototype.backspace = function backspace() {
   if (this._lastOp !== 'backspace' ||
     selectionBefore.start !== selectionBefore.end ||
     this._lastSelection !== null && selectionBefore.start !== this._lastSelection.start) {
-    this._history.push({value: valueBefore, selection: selectionBefore, lastOp: this._lastOp})
+    this._history.push({ value: valueBefore, selection: selectionBefore, lastOp: this._lastOp })
   }
   this._lastOp = 'backspace';
   this._lastSelection = copy(this.selection);
@@ -371,7 +368,7 @@ InputMask.prototype.paste = function paste(input) {
 
     // Continue as if the selection and input started from the editable part of
     // the pattern.
-    input = input.substring(this.pattern.firstEditableIndex - this.selection.start);
+    input = input.substring(this.pattern.firstEditableIndex - this.selection.start); // eslint-disable-line
     this.selection.start = this.pattern.firstEditableIndex;
   }
 
@@ -418,10 +415,9 @@ InputMask.prototype.undo = function undo() {
     if (historyItem.value !== value ||
       historyItem.selection.start !== this.selection.start ||
       historyItem.selection.end !== this.selection.end) {
-      this._history.push({value: value, selection: copy(this.selection), lastOp: this._lastOp, startUndo: true})
+      this._history.push({ value: value, selection: copy(this.selection), lastOp: this._lastOp, startUndo: true })
     }
-  }
-  else {
+  } else {
     historyItem = this._history[--this._historyIndex]
   }
 
@@ -453,8 +449,8 @@ InputMask.prototype.redo = function redo() {
 // Getters & setters
 
 InputMask.prototype.setPattern = function setPattern(pattern, options) {
-  options = extend({
-    selection: {start: 0, end: 0},
+  options = extend({ // eslint-disable-line
+    selection: { start: 0, end: 0 },
     value: ''
   }, options);
   this.pattern = new Pattern(pattern, this.formatCharacters, this.placeholderChar, options.isRevealingMask);
@@ -490,7 +486,7 @@ InputMask.prototype.setSelection = function setSelection(selection) {
 
 InputMask.prototype.setValue = function setValue(value) {
   if (value === null) {
-    value = ''
+    value = ''; // eslint-disable-line
   }
   this.value = this.pattern.formatValue(value.split(''));
 };
@@ -518,5 +514,4 @@ InputMask.prototype._resetHistory = function _resetHistory() {
 
 InputMask.Pattern = Pattern;
 
-// module.exports = InputMask;
 export default InputMask;
