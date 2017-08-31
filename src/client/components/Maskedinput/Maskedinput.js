@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import InputMask from '../inputmask-core'
+import InputMask from '../Inputmask'
 
 let KEYCODE_Z = 90;
 let KEYCODE_Y = 89;
